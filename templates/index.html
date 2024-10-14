@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart ATS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Smart ATS</h1>
+        <p class="mb-4">Improve Your Resume ATS</p>
+        
+        <form id="atsForm" class="mb-8">
+            <div class="mb-4">
+                <label for="jd" class="block text-sm font-medium text-gray-700">Job Description</label>
+                <textarea id="jd" name="jd" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="resume" class="block text-sm font-medium text-gray-700">Upload Your Resume (PDF)</label>
+                <input type="file" id="resume" name="resume" accept=".pdf" class="mt-1 block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100
+                ">
+            </div>
+            
+            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Submit
+            </button>
+        </form>
+        
+        <div id="result" class="bg-white shadow overflow-hidden sm:rounded-lg p-4 hidden">
+            <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Analysis Result</h2>
+            <pre id="resultContent" class="mt-2 text-sm text-gray-500"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('atsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData(this);
+            
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('result').classList.remove('hidden');
+                    document.getElementById('resultContent').textContent = JSON.stringify(JSON.parse(data.response), null, 2);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>
