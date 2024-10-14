@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart ATS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
@@ -33,9 +47,32 @@
             </button>
         </form>
         
+        <div id="loading" class="flex justify-center items-center hidden">
+            <div class="loader"></div>
+            <p class="ml-4">Analyzing your resume...</p>
+        </div>
+        
         <div id="result" class="bg-white shadow overflow-hidden sm:rounded-lg p-4 hidden">
             <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Analysis Result</h2>
-            <pre id="resultContent" class="mt-2 text-sm text-gray-500"></pre>
+            <div id="resultContent" class="mt-2 text-sm text-gray-500">
+                <div id="jdMatch" class="mb-4">
+                    <h3 class="font-medium">JD Match:</h3>
+                    <div class="mt-1 relative pt-1">
+                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+                            <div id="jdMatchBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"></div>
+                        </div>
+                        <span id="jdMatchPercentage" class="text-indigo-600 font-semibold"></span>
+                    </div>
+                </div>
+                <div id="missingKeywords" class="mb-4">
+                    <h3 class="font-medium">Missing Keywords:</h3>
+                    <ul id="keywordsList" class="list-disc list-inside mt-1"></ul>
+                </div>
+                <div id="profileSummary" class="mb-4">
+                    <h3 class="font-medium">Profile Summary:</h3>
+                    <p id="summaryText" class="mt-1"></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -45,20 +82,46 @@
             
             var formData = new FormData(this);
             
+            // Show loading animation
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            
             fetch('/', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
+                // Hide loading animation
+                document.getElementById('loading').classList.add('hidden');
+                
                 if (data.error) {
                     alert(data.error);
                 } else {
                     document.getElementById('result').classList.remove('hidden');
-                    document.getElementById('resultContent').textContent = JSON.stringify(JSON.parse(data.response), null, 2);
+                    
+                    // Update JD Match
+                    const jdMatch = parseFloat(data['JD Match']);
+                    document.getElementById('jdMatchBar').style.width = `${jdMatch}%`;
+                    document.getElementById('jdMatchPercentage').textContent = `${jdMatch}%`;
+                    
+                    // Update Missing Keywords
+                    const keywordsList = document.getElementById('keywordsList');
+                    keywordsList.innerHTML = '';
+                    data.MissingKeywords.forEach(keyword => {
+                        const li = document.createElement('li');
+                        li.textContent = keyword;
+                        keywordsList.appendChild(li);
+                    });
+                    
+                    // Update Profile Summary
+                    document.getElementById('summaryText').textContent = data['Profile Summary'];
                 }
             })
             .catch(error => {
+                // Hide loading animation
+                document.getElementById('loading').classList.add('hidden');
+                
                 console.error('Error:', error);
                 alert('An error occurred. Please try again.');
             });

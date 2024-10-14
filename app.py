@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 import PyPDF2 as pdf
 from dotenv import load_dotenv
+import json
 
 load_dotenv()  # load all our environment variables
 
@@ -48,7 +49,11 @@ def index():
                 resume_text = input_pdf_text(file)
                 final_prompt = input_prompt.format(text=resume_text, jd=jd)
                 response = get_gemini_response(final_prompt)
-                return jsonify({"response": response})
+                
+                # Parse the JSON string into a Python dictionary
+                response_dict = json.loads(response)
+                
+                return jsonify(response_dict)
             except Exception as e:
                 return jsonify({"error": str(e)})
     
