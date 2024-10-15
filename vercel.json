@@ -7,5 +7,13 @@
     "routes": [
       { "src": "/api/(.*)", "dest": "api/index.py" },
       { "src": "/(.*)", "dest": "index.html" }
-    ]
+    ],
+    "projectSettings": {
+      "framework": null,
+      "buildCommand": null,
+      "devCommand": null,
+      "installCommand": null,
+      "outputDirectory": null,
+      "rootDirectory": null
+    }
   }
